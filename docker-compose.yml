@@ -1,0 +1,23 @@
+services:
+  backend:
+    build: ./backend
+    container_name: trello-lite-backend
+    command: poetry run uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+    volumes:
+      - ./backend/app:/app/app               # Mount only source code
+      - ./backend/pyproject.toml:/app/pyproject.toml
+      - ./backend/poetry.lock:/app/poetry.lock
+    ports:
+      - "8000:8000"
+    environment:
+      - DATABASE_URL=sqlite:///./trello_lite.db
+
+  frontend:
+    build: ./frontend
+    container_name: trello-lite-frontend
+    command: npm run dev
+    volumes:
+      - ./frontend:/app                      # Mount frontend source for hot reload
+      - /app/node_modules                    # Prevent conflicts with container node_modules
+    ports:
+      - "3000:3000"
