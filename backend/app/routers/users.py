@@ -12,14 +12,14 @@ router = APIRouter(
     )
 
 @router.get(
-    "/by-id/{user_id}",
+    "/{user_id}",
     response_model=UserRead
 )
 def get_user_by_id_endpoint(user_id: int, db: Session = Depends(get_db)) -> UserRead:
     user = get_user_by_id(db, user_id)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return UserRead.model_validate(user)
 
 
 @router.get(
@@ -30,7 +30,7 @@ def get_user_by_username_endpoint(username: str, db: Session = Depends(get_db)) 
     user = get_user_by_username(db, username)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return UserRead.model_validate(user)
 
 @router.get(
     "/by-email",
@@ -40,7 +40,7 @@ def get_user_by_email_endpoint(email: str, db: Session = Depends(get_db)) -> Use
     user = get_user_by_email(db, email)
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
-    return user
+    return UserRead.model_validate(user)
 
 
 @router.post(
@@ -52,7 +52,7 @@ def create_user_endpoint(user: UserCreate, db: Session = Depends(get_db)) -> Use
         db_user = create_user(db, user.username, user.email, user.password)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
-    return db_user
+    return UserRead.model_validate(db_user)
 
 
 @router.put(
@@ -63,7 +63,7 @@ def update_user_endpoint(user_id: int, user: UserUpdate, db: Session = Depends(g
     db_user = update_user(db, user_id, email=user.email, password=user.password)
     if not db_user:
         raise HTTPException(status_code=404, detail="User not found")
-    return db_user
+    return UserRead.model_validate(db_user)
 
 
 @router.delete(

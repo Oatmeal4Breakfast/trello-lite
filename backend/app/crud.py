@@ -86,7 +86,7 @@ def delete_board(db: Session, board_id: int):
     return board
 
 
-def create_board(db: Session, title: str, description: str, owner_id: int):
+def create_board(db: Session, title: str, description: str | None, owner_id: int):
     db_board = Board(title=title, description=description, owner_id=owner_id)
     db.add(db_board)
     db.commit()

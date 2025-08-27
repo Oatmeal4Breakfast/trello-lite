@@ -1,0 +1,69 @@
+from app.schemas import BoardBase, BoardCreate, BoardUpdate, BoardRead
+from fastapi import APIRouter, Depends, HTTPException, Response, status
+from app.crud import get_board_by_id, get_boards_by_owner_id, create_board, update_board, delete_board
+from app.database import get_db
+from sqlalchemy.orm import Session
+from collections.abc import Sequence
+
+
+
+router = APIRouter(
+    prefix="/boards",
+    tags=["boards"],
+    responses={404: {"description": "Not found"}}
+    )
+
+
+@router.get(
+    "/{board_id}",
+    response_model=BoardRead
+)
+def get_board_by_id_endpoint(board_id: int, db: Session = Depends(get_db)) -> BoardRead:
+    board = get_board_by_id(db, board_id)
+    if not board:
+        raise HTTPException(status_code=404, detail="Board not found")
+    return BoardRead.model_validate(board)
+
+
+@router.get(
+    "/owner/{owner_id}",
+    response_model=Sequence[BoardRead])
+def get_boards_by_owner_id_endpoint(owner_id: int, db: Session = Depends(get_db)) -> Sequence[BoardRead]:
+    boards = get_boards_by_owner_id(db, owner_id)
+    return [BoardRead.model_validate(board) for board in boards]
+
+
+@router.post(
+    "/",
+    response_model=BoardRead
+    )
+def create_board_endpoint(board: BoardCreate, db: Session = Depends(get_db)) -> BoardRead:
+    try:
+        db_board = create_board(db, board.title, board.description, board.owner_id)
+    except ValueError as e:
+        raise HTTPException(status_code=400, detail=str(e))
+    return BoardRead.model_validate(db_board)
+
+@router.put(
+    "/{board_id}",
+    response_model=BoardRead
+    )
+def update_board_endpoint(board_id: int, board: BoardUpdate, db: Session = Depends(get_db)) -> BoardRead:
+    try:
+        db_board = update_board(db, board_id, board.title, board.description)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return BoardRead.model_validate(db_board)
+
+
+@router.delete(
+    "/{board_id}",
+    status_code=status.HTTP_204_NO_CONTENT,
+    response_model=None
+    )
+def delete_board_endpoint(board_id: int, db: Session = Depends(get_db)) -> Response:
+    try:
+        delete_board(db, board_id)
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
+    return Response(status_code=status.HTTP_204_NO_CONTENT)
