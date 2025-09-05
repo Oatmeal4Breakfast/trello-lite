@@ -1,5 +1,5 @@
 import bcrypt
-from models import User, Board, List, Card
+from app.models import User, Board, List, Card
 from sqlalchemy.orm import Session
 
 #----- User CRUD operations -----#

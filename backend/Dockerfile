@@ -23,7 +23,7 @@ RUN --mount=type=cache,target=/root/.cache/uv \
 COPY app ./app
 
 # Sync project itself into the venv
-RUN uv sync --locked
+RUN uv sync --locked --no-install-project
 
 # Expose FastAPI port
 EXPOSE 8000
