@@ -168,7 +168,7 @@ def delete_card(db: Session, card_id: int):
     return card
 
 
-def create_card(db: Session, title: str, description: str, list_id: int):
+def create_card(db: Session, title: str, description: str | None, list_id: int):
     db_card = Card(title=title, description=description, list_id=list_id)
     db.add(db_card)
     db.commit()
