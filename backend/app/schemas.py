@@ -20,6 +20,14 @@ class UserRead(UserBase):
         "from_attributes": True
     }
 
+class UserLogin(BaseModel):
+    email: EmailStr
+    password: str
+
+class Token(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
 class BoardBase(BaseModel):
     title: str
     description: str | None = None
