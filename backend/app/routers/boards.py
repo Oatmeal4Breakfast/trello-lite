@@ -1,4 +1,4 @@
-from app.schemas import BoardBase, BoardCreate, BoardUpdate, BoardRead
+from app.schemas import BoardCreate, BoardUpdate, BoardRead
 from fastapi import APIRouter, Depends, HTTPException, Response, status
 from app.crud import get_board_by_id, get_boards_by_owner_id, create_board, update_board, delete_board
 from app.database import get_db
